@@ -1,3 +1,4 @@
+
 import {Navbar } from "./components/Navbar.js";
 import {renderFooter} from "./components/Footer.js";
 import {router} from "./router/router.js";
