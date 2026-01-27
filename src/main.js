@@ -5,7 +5,7 @@ const app = document.getElementById('app');
 app.appendChild(loginTemplate())
  */
 
-import {registerTemplate} from "./views/register.js";
+import {registerPage} from "./views/register.js";
 
 const app = document.getElementById('app');
-app.appendChild(registerTemplate())
+app.appendChild(registerPage())
