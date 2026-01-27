@@ -1,45 +1,40 @@
-// Función que retorna el template HTML del login
+// Description: Template for the user registration page
+
 export function loginTemplate() {
-    return `
-         <main class="auth-container">
-    <section class="auth-card">
+    const main = document.createElement('main');
+    main.classList.add('auth-body');
 
-      <header class="auth-header">
-        <h1>Observatorio Urbano y Ambiental</h1>
-        <p>Acceso a plataforma GovTech</p>
-      </header>
+    main.innerHTML = `
+        <section class="auth-card">
+          <header class="auth-header">
+            <h1>Observatorio Urbano y Ambiental</h1>
+            <p>Acceso a plataforma GovTech</p>
+          </header>
 
-      <form class="auth-form">
-        <div class="form-group">
-          <label for="email">Correo electrónico</label>
-          <input id="email" type="email" placeholder="admin@govtech.com" required />
-        </div>
+          <form class="auth-form">
+            <div class="form-group">
+              <label for="email">Correo electrónico</label>
+              <input id="email" type="email" placeholder="admin@govtech.com" required />
+            </div>
 
-        <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input id="password" type="password" placeholder="••••••••" required />
-        </div>
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <input id="password" type="password" placeholder="••••••••" required />
+            </div>
 
-        <button type="submit" class="btn btn-primary">
-          Iniciar sesión
-        </button>
+            <button type="submit" class="btn btn-primary">
+              Iniciar sesión
+            </button>
 
-        <p class="auth-error hidden">
-          Credenciales inválidas. Intenta nuevamente.
-        </p>
-      </form>
+            <p class="auth-error hidden">
+              Credenciales inválidas. Intenta nuevamente.
+            </p>
+          </form>
 
-      <footer class="auth-footer">
-        <p>Proyecto educativo – Riwi GovTech</p>
-      </footer>
-
-    </section>
-  </main>
+          <footer class="auth-footer">
+            <p>Proyecto educativo – Riwi GovTech</p>
+          </footer>
+        </section>
     `;
-}
-
-
-// Función que maneja la lógica del componente
-export function loginScript() {
-
+    return main;
 }
