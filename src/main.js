@@ -1,11 +1,18 @@
-/*
-import {loginTemplate} from './views/login.js';
+
+import {Navbar } from "./components/Navbar.js";
+import {renderFooter} from "./components/Footer.js";
+import {router} from "./router/router.js";
+
 
 const app = document.getElementById('app');
-app.appendChild(loginTemplate())
- */
 
-import {registerPage} from "./views/register.js";
+export function render(viewNode) {
+    app.innerHTML = '';
 
-const app = document.getElementById('app');
-app.appendChild(registerPage())
+    app.appendChild(Navbar());
+    app.appendChild(viewNode);
+    app.appendChild(renderFooter());
+}
+
+window.addEventListener('hashchange', router);
+window.addEventListener('load', router);
