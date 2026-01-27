@@ -1,4 +1,4 @@
-import {renderForecastItem} from "../components/forecastItem.js";
+import {renderForecastItem} from "../components/ForecastItem.js";
 
 
 export function renderDetailView() {
