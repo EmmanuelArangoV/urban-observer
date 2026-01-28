@@ -1,4 +1,7 @@
-﻿export function renderCreateProject() {
+﻿import {debounce} from "../utils/helpers";
+import geocodingService from "../services/geocodingService"
+
+export function renderCreateProject() {
     const app = document.getElementById('app');
 
     app.innerHTML = `
@@ -180,3 +183,31 @@
     initCitySearchEvents();
     */
 }
+
+function initCitySearchEvents(){
+    const searchInput = document.getElementById('city-search-input');
+    const resultsContainer = document.getElementById('city-results');
+    const loader = document.getElementById('city-search-loader');
+    const cityInput = document.getElementById('city-input');
+    const latInput = document.getElementById('lat-input');
+    const lonInput = document.getElementById('lon-input');
+    const nameInput = document.getElementById('name-input');
+
+    //funcion debounce con temporizador para la busqueda
+    const debouncedSearch = debounce(async (searchTerm) =>{
+    if (searchTerm.length < 2) {
+        resultsContainer.style.display = 'none';
+        return;
+    }
+    //Aparece icono cargando, todo bonito
+    loader.style.display = 'block';
+
+    try{
+        const cities = await geocodingService.searchCity(searchTerm);
+    }catch (error){
+
+    }
+    })
+}
+
+
