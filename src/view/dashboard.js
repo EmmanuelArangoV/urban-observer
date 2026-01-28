@@ -1,7 +1,10 @@
-import { Card } from '../components/card.js';
+import { Card } from '../components/Card.js';
+import { LoadingView} from "../components/Loading.js";
+import JsonService from "../services/jsonService.js";
 
 export function DashboardView() {
     const main = document.createElement('main');
+    const loadingHtml = LoadingView();
 
     // Search Section
     const searchSection = document.createElement('section');
@@ -59,24 +62,21 @@ export function DashboardView() {
     projectSection.innerHTML = `<div class="projects-grid"></div>`;
 
     const projectsGrid = projectSection.querySelector('.projects-grid');
+    projectsGrid.innerHTML = loadingHtml;
 
-    const projectSample = {
-        city: 'Madrid',
-        description: 'Monitoreo estación A',
-        temperature: '18°C',
-        wind: '12 km/h',
-        rain: '0 mm',
-        status: 'Activo',
-        updated: 'Actualizado hace 5 min',
-        detailHref: 'detail-madrid.html',
-        favorite: true
-    };
-
-    const projects = Array(6).fill(projectSample);
-
-    // Mapear a Card, unir con join y agregar al grid
-    const cardsHtml = projects.map(project => Card(project)).join('');
-    projectsGrid.innerHTML = cardsHtml;
+    (async () => {
+        try {
+            const projectIds = await JsonService.getProjectIds();
+            projectsGrid.innerHTML = '';
+            const cardsArray = await Promise.all(projectIds.map(id => Card(id)));
+            const cardsHtml = cardsArray.join('');
+            projectsGrid.innerHTML = cardsHtml || `<p class="info">No hay proyectos disponibles.</p>`;
+        } catch (error) {
+            projectsGrid.innerHTML = '';
+            console.error('Error cargando proyectos:', error);
+            projectsGrid.innerHTML = `<p class="error">No se pudieron cargar los proyectos. Intenta de nuevo más tarde.</p>`;
+        }
+    })();
 
     main.appendChild(searchSection);
     main.appendChild(statsSection);
@@ -84,3 +84,5 @@ export function DashboardView() {
 
     return main;
 }
+
+

@@ -1,15 +1,27 @@
-export function Card(project = {}) {
-    const {
-        city = 'Ciudad',
-        description = 'Descripción del proyecto',
-        temperature = '0°C',
-        wind = '0 km/h',
-        rain = '0 mm',
-        status = 'Activo',
-        updated = 'Actualizado hace 0 min',
-        detailHref = 'detail.html',
-        favorite = false
-    } = project;
+import JsonService from "../services/jsonService.js";
+import MeteoService from "../services/meteoService.js";
+
+export async function Card(projectId) {
+    const project_response = await JsonService.getProjectById(projectId);
+    const meteo_data = await MeteoService.getWeather(project_response.lat, project_response.lon);
+
+    const data = {
+        city: project_response.city || 'Ciudad Desconocida',
+        description: project_response.description || 'Sin descripción, disponible.',
+        temperature: `${meteo_data.temperature}°C` || 'N/A',
+        wind: `${meteo_data.windSpeed} km/h` || 'N/A',
+        status: project_response.status || 'Inactivo',
+        updated: new Date().toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        }) || 'N/A',
+        favorite: project_response.favorite || false,
+        detailHref: `#/detailView/${projectId}`,
+        rain: `${meteo_data.rain} mm/h` || '0 mm/h'
+    };
 
     return `
     <article class="project-card">
@@ -20,18 +32,18 @@ export function Card(project = {}) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
-            <h3 class="project-title">${city}</h3>
+            <h3 class="project-title">${data.city}</h3> 
           </div>
-          <button class="favorite-button ${favorite ? 'active' : ''}" aria-label="Marcar como favorito">
+          <button class="favorite-button ${data.favorite ? 'active' : ''}" aria-label="Marcar como favorito">
             <svg class="favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
             </svg>
           </button>
         </div>
-        <span class="badge ${status === 'Activo' ? 'active' : ''}">${status}</span>
+        <span class="badge ${data.status === 'activo' ? 'active' : ''}">${data.status}</span> 
       </div>
       <div class="project-body">
-        <p class="project-description">${description}</p>
+        <p class="project-description">${data.description}</p> 
         <div class="weather-grid">
           <div class="weather-item temp">
             <svg class="weather-icon temp" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +51,7 @@ export function Card(project = {}) {
             </svg>
             <div class="weather-info">
               <span class="weather-label">Temp.</span>
-              <span class="weather-value">${temperature}</span>
+              <span class="weather-value">${data.temperature}</span>
             </div>
           </div>
           <div class="weather-item wind">
@@ -48,7 +60,7 @@ export function Card(project = {}) {
             </svg>
             <div class="weather-info">
               <span class="weather-label">Viento</span>
-              <span class="weather-value">${wind}</span>
+              <span class="weather-value">${data.wind}</span>
             </div>
           </div>
           <div class="weather-item rain">
@@ -57,7 +69,7 @@ export function Card(project = {}) {
             </svg>
             <div class="weather-info">
               <span class="weather-label">Precip.</span>
-              <span class="weather-value">${rain}</span>
+              <span class="weather-value">${data.rain}</span> 
             </div>
           </div>
         </div>
@@ -66,9 +78,9 @@ export function Card(project = {}) {
             <svg class="calendar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            <span>${updated}</span>
+            <span>Actualizado: ${data.updated}</span>
           </div>
-          <a href="${detailHref}" class="btn btn-outline">Ver detalle</a>
+          <a href="${data.detailHref}" class="btn btn-outline">Ver detalle</a>
         </div>
       </div>
     </article>`;

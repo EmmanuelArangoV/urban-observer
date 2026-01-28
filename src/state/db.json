@@ -1,4 +1,49 @@
 {
   "users": [],
-  "proyects": []
+  "projects": [
+    {
+      "id": "e755",
+      "name": "Monitoreo Ambiental Medellín",
+      "city": "Medellín, Antioquia, Colombia",
+      "lat": 6.25184,
+      "lon": -75.56359,
+      "description": "Ciudad Medellin, Antioquia, Colombia.",
+      "status": "pendiente",
+      "favorite": true,
+      "createdAt": "2026-01-26T13:27:35.150Z"
+    },
+    {
+      "id": "1814",
+      "name": "Monitoreo Ambiental Berlín",
+      "city": "Berlín, Ciudad estado Berlín, Alemania",
+      "lat": 52.52437,
+      "lon": 13.41053,
+      "description": "Ciudad Berlín, Ciudad estado Berlín, Alemania",
+      "status": "activo",
+      "favorite": false,
+      "createdAt": "2026-01-26T13:29:16.793Z"
+    },
+    {
+      "id": "85e1",
+      "name": "Monitoreo Ambiental Dublín",
+      "city": "Dublín, Leinster, Irlanda",
+      "lat": 53.33306,
+      "lon": -6.24889,
+      "description": "",
+      "status": "finalizado",
+      "favorite": true,
+      "createdAt": "2026-01-26T13:35:51.495Z"
+    },
+    {
+      "id": "1df6",
+      "name": "Monitoreo Ambiental Itagüí",
+      "city": "Itagüí, Antioquia, Colombia",
+      "lat": 6.18461,
+      "lon": -75.59913,
+      "description": "Municipio ItagÜi, AN",
+      "status": "activo",
+      "favorite": true,
+      "createdAt": "2026-01-26T18:19:43.065Z"
+    }
+  ]
 }
