@@ -1,4 +1,11 @@
-import { renderDetailView } from './views/detail.js';
+import {router} from './router/router.js';
 
-const app = document.getElementById('app');
-app.appendChild(renderDetailView())
+export function render(view) {
+    const app = document.getElementById('app');
+    if (app) {
+        app.innerHTML = '';
+        if (view) {
+            app.appendChild(view);
+        }
+    }
+}

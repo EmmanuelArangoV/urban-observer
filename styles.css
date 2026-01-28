@@ -1073,9 +1073,26 @@ body {
 .auth-footer {
     margin-top: 2rem;
     text-align: center;
-    font-size: 0.75rem;
-    color: #9ca3af;
+    font-size: 0.875rem;
+    color: #6b7280;
 }
+
+.auth-footer p {
+    margin-bottom: 0.5rem;
+}
+
+.auth-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.auth-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
 
 /* =========================
    STATE / UNAUTHORIZED
@@ -1095,7 +1112,7 @@ body {
     border-radius: 0.75rem;
     text-align: center;
     max-width: 420px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .state-card.error h1 {
@@ -1118,7 +1135,7 @@ body {
     background: white;
     padding: 2rem;
     border-radius: 0.75rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .create-header {
@@ -1170,7 +1187,7 @@ body {
 .create-form select:focus {
     outline: none;
     border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-actions {
@@ -1201,4 +1218,57 @@ body {
     .form-row {
         flex-direction: column;
     }
+}
+
+/* -------------------------------------------------- */
+
+/* Estilos para sugerencias de ciudades */
+.suggestions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    width: calc(100% - 2rem);
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.form-group {
+    position: relative;
+}
+
+.auth-success {
+    color: #10b981;
+    background-color: #d1fae5;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
 }
