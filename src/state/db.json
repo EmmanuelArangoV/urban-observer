@@ -10,6 +10,17 @@
       "latitude": -89.8456,
       "longitude": -16.4054,
       "createdAt": "2026-01-28T01:50:02.977Z"
+    },
+    {
+      "id": "2241",
+      "name": "Caroline Barnes",
+      "email": "caroline.barnes@example.com",
+      "password": "females",
+      "role": "user",
+      "city": "Cambridge",
+      "latitude": -6.8342,
+      "longitude": 126.8656,
+      "createdAt": "2026-01-28T02:19:01.007Z"
     }
   ],
   "proyects": []
