@@ -4,28 +4,40 @@ class MeteoService {
 
     async getWeather(latitude, longitude) {
         try {
-            const URL = `${API_URLS.WEATHER}?latitude=${latitude}&longitude=${longitude}&current_weather=true&timezone=auto`
+            const URL = `${API_URLS.WEATHER}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,precipitation,windspeed_10m,winddirection_10m&timezone=America/Bogota`;
 
             const response = await fetch(URL);
-
             if (!response.ok) {
                 throw new Error(`Error HTTP ${response.status}`);
             }
 
             const data = await response.json();
 
+            const date = new Date(data.current.time);
+            const formattedDate = date.toLocaleString('es-CO', {
+                weekday: 'long',
+                year: '2-digit',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+
             return {
-                temperature: Math.round(data.current_weather.temperature),
-                windSpeed: Math.round(data.current_weather.windspeed),
-                windDirection: data.current_weather.winddirection,
-                weatherCode: data.current_weather.weathercode,
-                time: data.current_weather.time
+                temperature: Math.round(data.current.temperature_2m),
+                windSpeed: Math.round(data.current.windspeed_10m),
+                windDirection: data.current.winddirection_10m,
+                rain: data.current.precipitation || 0,
+                time: formattedDate,
+                elevation: data.elevation
             };
         } catch (error) {
             console.error('Clima no obtenido', error);
             throw new Error('No se pudo conectar con la API de Open-Meteo.');
         }
     }
+
+
 
     async getDetailWeather(latitude, longitude) {
         try {
@@ -105,4 +117,4 @@ class MeteoService {
 
 }
 // Exportar instancia única (Singleton)
-export default new WeatherService();
+export default new MeteoService();
