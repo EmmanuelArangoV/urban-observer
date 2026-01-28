@@ -41,7 +41,7 @@ class MeteoService {
 
     async getDetailWeather(latitude, longitude) {
         try {
-            const URL = `${API_URLS.WEATHER}?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation,windspeed_10m,visibility,weathercode&daily=sunrise,sunset&timezone=auto&forecast_days=1`;
+            const URL = `${API_URLS.WEATHER}?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation,windspeed_10m,visibility,weathercode&daily=sunrise,sunset&timezone=auto&forecast_days=2`;
             const response = await fetch(URL);
 
 
@@ -69,26 +69,42 @@ class MeteoService {
             const hourlyData = data.hourly;
 
 
+
             //Datos horarios actuales
             const hourly = {
                 humidity: hourlyData.relativehumidity_2m[currentHour],
                 precipitation: hourlyData.precipitation[currentHour],
                 visibility: hourlyData.visibility[currentHour] / 1000, //Convertir a km
-                apparentTemperature: Math.round(hourlyData.temperature_2m[currentHour] / 1000),
+                apparentTemperature: Math.round(hourlyData.temperature_2m[currentHour]),
             };
 
+            // Lógica corregida para el Forecast (Próximas 6 horas con transición de día)
             const forecast = [];
-            for (let i = currentHour; i < 6 && i < 24; i++) {
-                forecast.push({
-                    time: `${i}:00`,
-                    temperature: Math.round(hourlyData.temperature_2m[i]),
-                    weatherCode: hourlyData.weathercode[i],
+            const hoursToForecast = 6;
 
-                    condition: WEATHER_CODES[hourlyData.weathercode[i]] || 'Desconocido'
+            for (let i = 0; i < hoursToForecast; i++) {
+                // El índice en el array de datos (lineal).
+                // Al ser > 23, accede automáticamente a los datos del día siguiente en el array.
+                const dataIndex = currentHour + i;
 
-                });
+                // Calculamos la hora de visualización (0-23) usando módulo
+                // Ejemplo: si dataIndex es 25, 25 % 24 = 1 (La 01:00 AM)
+                const displayHour = dataIndex % 24;
+
+                // Formateamos "1" a "01:00"
+                const timeLabel = `${displayHour.toString().padStart(2, '0')}:00`;
+
+                // Verificamos que existan datos (por seguridad)
+                if (hourlyData.temperature_2m[dataIndex] !== undefined) {
+                    forecast.push({
+                        time: timeLabel,
+                        temperature: Math.round(hourlyData.temperature_2m[dataIndex]) + '°',
+                        weatherCode: hourlyData.weathercode[dataIndex],
+                        condition: WEATHER_CODES[hourlyData.weathercode[dataIndex]] || 'Desconocido'
+                    });
+                }
             }
-            console.log("loca", forecast);
+
             //sol y puesta
             const sun = {
                 sunrise: data.daily.sunrise[0].split('T')[1],

@@ -1,71 +1,68 @@
+/* src/services/authService.js */
 import {API_URLS} from "../utils/constants.js";
 
+/**
+ * Inicia sesión con email y contraseña.
+ * Verifica si el usuario existe en la base de datos (db.json).
+ *
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<{success: boolean, user?: object, error?: string}>}
+ */
 export async function login(email, password) {
-    console.log('[AUTH SERVICE] Intentando login para:', email);
-
     try {
-        const url = `${API_URLS.USERS}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-        console.log('[AUTH SERVICE] URL de consulta:', url);
-
-        const response = await fetch(url);
+        // En un entorno real, esto sería una petición POST con body
+        // Como usamos json-server, filtramos por email en la URL
+        const response = await fetch(`${API_URLS.BASE_URL}/users?email=${email}`);
 
         if (!response.ok) {
-            console.error('[AUTH SERVICE] Respuesta no OK:', response.status);
-            throw new Error('Error al verificar credenciales');
+            throw new Error('Error de conexión con el servidor');
         }
 
         const users = await response.json();
-        console.log('[AUTH SERVICE] Respuesta recibida:', users);
+        const user = users[0];
 
-        if (users.length === 0 || !Array.isArray(users)) {
-            console.warn('[AUTH SERVICE] Usuario no encontrado o credenciales inválidas');
-            throw new Error('Credenciales inválidas');
+        if (!user) {
+            return { success: false, error: 'Usuario no encontrado' };
         }
 
-        const user = users[0];
-        console.log('[AUTH SERVICE] Usuario encontrado:', {
-            id: user.id,
-            nombre: user.name,
-            email: user.email,
-            rol: user.role
-        });
+        if (user.password !== password) {
+            return { success: false, error: 'Contraseña incorrecta' };
+        }
 
-        localStorage.setItem('activeUser', JSON.stringify(user));
-        console.log('[AUTH SERVICE] Usuario guardado en localStorage');
+        // Guardamos el usuario activo en localStorage para persistencia básica
+        // Nota: NO guardar contraseñas en localStorage en producción real
+        const sessionUser = { ...user };
+        delete sessionUser.password; // Quitamos la contraseña del objeto en memoria
+        localStorage.setItem('activeUser', JSON.stringify(sessionUser));
 
-        return {success: true, user};
+        return { success: true, user: sessionUser };
+
     } catch (error) {
-        console.error('[AUTH SERVICE] Error en login:', error.message);
-        return {success: false, error: error.message};
+        console.error('Login error:', error);
+        return { success: false, error: 'Ocurrió un error inesperado' };
     }
 }
 
+/**
+ * Registra un nuevo usuario en la base de datos.
+ * Verifica primero si el email ya existe.
+ *
+ * @param {object} userData - Objeto con datos del usuario (name, email, password, etc.)
+ * @returns {Promise<{success: boolean, user?: object, error?: string}>}
+ */
 export async function register(userData) {
-    console.log('[AUTH SERVICE] Intentando registrar usuario:', userData.email);
-
     try {
-        const checkUrl = `${API_URLS.USERS}?email=${encodeURIComponent(userData.email)}`;
-        console.log('[AUTH SERVICE] Verificando email existente:', checkUrl);
+        // 1. Verificar si el email ya existe
+        const checkRef = await fetch(`${API_URLS.BASE_URL}/users?email=${userData.email}`);
+        const existingUsers = await checkRef.json();
 
-        const response = await fetch(checkUrl);
-
-        if (!response.ok) {
-            console.error('[AUTH SERVICE] Error al verificar email:', response.status);
-            throw new Error('Error al verificar usuario existente');
+        if (existingUsers.length > 0) {
+            return { success: false, error: 'El correo electrónico ya está registrado' };
         }
 
-        const existingUsers = await response.json();
-        console.log('[AUTH SERVICE] Usuarios existentes encontrados:', existingUsers.length);
-
-        if (Array.isArray(existingUsers) && existingUsers.length > 0) {
-            console.warn('[AUTH SERVICE] Email ya registrado');
-            throw new Error('El correo electrónico ya está registrado');
-        }
-
-        console.log('[AUTH SERVICE] Email disponible, procediendo con registro...');
-        console.log('[AUTH SERVICE] Enviando POST a:', API_URLS.USERS);
-
-        const registerResponse = await fetch(API_URLS.USERS, {
+        // 2. Crear el usuario
+        const response = await fetch(`${API_URLS.BASE_URL}/users`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -73,44 +70,45 @@ export async function register(userData) {
             body: JSON.stringify(userData)
         });
 
-        if (!registerResponse.ok) {
-            console.error('[AUTH SERVICE] Error en POST:', registerResponse.status);
-            throw new Error('Error al registrar nuevo usuario');
+        if (!response.ok) {
+            throw new Error('No se pudo crear el usuario');
         }
 
-        const newUser = await registerResponse.json();
-        console.log('[AUTH SERVICE] Usuario registrado exitosamente:', {
-            id: newUser.id,
-            nombre: newUser.name,
-            email: newUser.email,
-            rol: newUser.role
-        });
+        const newUser = await response.json();
+        return { success: true, user: newUser };
 
-        return {success: true, user: newUser};
     } catch (error) {
-        console.error('[AUTH SERVICE] Error en registro:', error.message);
-        return {success: false, error: error.message};
+        console.error('Register error:', error);
+        return { success: false, error: error.message || 'Error al registrar usuario' };
     }
 }
 
-export function getActiveUser() {
-    console.log('[AUTH SERVICE] Obteniendo usuario activo de localStorage');
-    const userJson = localStorage.getItem('activeUser');
-    const user = userJson ? JSON.parse(userJson) : null;
-
-    if (user) {
-        console.log('[AUTH SERVICE] Usuario activo encontrado:', user.email);
-    } else {
-        console.log('[AUTH SERVICE] No hay usuario activo');
-    }
-
-    return user;
-}
-
+/**
+ * Cierra la sesión del usuario actual.
+ */
 export function logout() {
-    console.log('[AUTH SERVICE] Cerrando sesión...');
     localStorage.removeItem('activeUser');
-    console.log('[AUTH SERVICE] Usuario removido de localStorage');
     window.location.hash = '#login';
-    console.log('[AUTH SERVICE] Redirigido a login');
+}
+
+/**
+ * Obtiene el usuario autenticado actualmente desde localStorage.
+ * @returns {object|null}
+ */
+export function getCurrentUser() {
+    const userStr = localStorage.getItem('activeUser');
+    if (!userStr) return null;
+    try {
+        return JSON.parse(userStr);
+    } catch (e) {
+        return null;
+    }
+}
+
+/**
+ * Verifica si hay un usuario autenticado.
+ * @returns {boolean}
+ */
+export function isAuthenticated() {
+    return !!getCurrentUser();
 }

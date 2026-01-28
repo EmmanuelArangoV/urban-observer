@@ -30,7 +30,8 @@ async function getData(id) {
             visibility: weather.hourly.visibility,
             sunrise: weather.sun.sunrise,
             sunset: weather.sun.sunset,
-            lastUpdate:formatDate(weather.current.time),
+            lastUpdate: formatDate(Date.now()),
+            currentTime:formatDate(weather.current.time),
             forecast: weather.forecast,
 
         };
@@ -45,15 +46,7 @@ async function getData(id) {
 export function renderDetailView(id) {
     const data = getData(id);
 
-// 1. Datos para los pronósticos
-    const forecastData = [
-        {time: "14:00", temp: "23°", condition: "Soleado"},
-        {time: "15:00", temp: "24°", condition: "Soleado"},
-        {time: "16:00", temp: "23°", condition: "Parcialmente nublado"},
-        {time: "17:00", temp: "22°", condition: "Nublado"},
-        {time: "18:00", temp: "20°", condition: "Nublado"},
-        {time: "19:00", temp: "19°", condition: "Parcialmente nublado"}
-    ];
+
 
 
     const main = document.createElement('main');
@@ -191,6 +184,9 @@ export function renderDetailView(id) {
                                 <div>
                                     <p class="update-label">Última actualización</p>
                                     <p class="update-date">${data.lastUpdate}</p>
+                                    <p class="update-label">Hora en ${data.ciudad}: </p>
+                                    <p class="update-date">${data.currentTime}</p>
+                                    
                                 </div>
                             </div>
                         </div>

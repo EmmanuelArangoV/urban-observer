@@ -57,7 +57,7 @@ export function registerTemplate() {
                 </button>
                 
                 <button type="submit" class="btn btn-primary">
-                    Crear cuenta
+                   <a href="#login"></a> Crear cuenta
                 </button>
                 
                 <p class="auth-error hidden" id="auth-error">

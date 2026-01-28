@@ -1,5 +1,17 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": "96eb",
+      "name": "Eden Jackson",
+      "email": "eden.jackson@example.com",
+      "password": "456789",
+      "role": "user",
+      "city": "Auckland",
+      "latitude": 53.1813,
+      "longitude": 123.2179,
+      "createdAt": "2026-01-28T23:24:40.510Z"
+    }
+  ],
   "projects": [
     {
       "id": "e755",
