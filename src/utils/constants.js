@@ -2,10 +2,11 @@
 export const API_URLS = {
     WEATHER: 'https://api.open-meteo.com/v1/forecast',
     GEOCODING: 'https://geocoding-api.open-meteo.com/v1/search',
-    RAMDON_USER: 'https://randomuser.me/'
+    RAMDON_USER: 'https://randomuser.me/',
+    USERS: 'http://localhost:3000/users',
+    PROJECTS: 'http://localhost:3000/projects'
 };
-    GEOCODING: 'https://geocoding-api.open-meteo.com/v1/search'
-};
+
 // Códigos de clima Open-Meteo
 export const WEATHER_CODES = {
     0: 'Despejado',
