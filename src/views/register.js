@@ -1,17 +1,8 @@
-import {
-    getRandomUser,
-    searchCityByName,
-    getCityCoordinates,
-    validateEmail,
-    validatePasswordMatch
-} from '../services/userService.js';
+import {register} from '../services/authService.js';
 
-// ==================== TEMPLATE ====================
-/**
- * Crea la estructura HTML del formulario de registro
- * @returns {HTMLElement} Elemento main con el formulario
- */
-function registerTemplate() {
+export function registerTemplate() {
+    console.log('📄 [REGISTER] Template cargado');
+
     const main = document.createElement('main');
     main.classList.add('auth-body');
     main.innerHTML = `
@@ -20,7 +11,7 @@ function registerTemplate() {
                 <h1>Observatorio Urbano y Ambiental</h1>
                 <p>Crear cuenta en plataforma GovTech</p>
             </header>
-            <form class="auth-form">
+            <form class="auth-form" id="register-form">
                 <div class="form-group">
                     <label for="register-name">Nombre completo</label>
                     <input id="register-name" type="text" placeholder="Juan Pérez" required />
@@ -38,28 +29,43 @@ function registerTemplate() {
                     <input id="register-confirm-password" type="password" placeholder="••••••••" required />
                 </div>
                 <div class="form-group">
+                    <label for="register-role">Rol</label>
+                    <select id="register-role" required>
+                        <option value="user">Usuario</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="city">Ciudad</label>
                     <input id="city" type="text" placeholder="Medellín" required />
                     <small class="form-hint">Escribe la ciudad y se autocompletarán las coordenadas</small>
+                    <ul id="city-suggestions" class="suggestions-list hidden"></ul>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="latitude">Latitud</label>
-                        <input id="latitude" type="text" placeholder="6.25" required />
+                        <input id="latitude" type="text" placeholder="6.25" readonly required />
                     </div>
                     <div class="form-group">
                         <label for="longitude">Longitud</label>
-                        <input id="longitude" type="text" placeholder="-75.56" required />
+                        <input id="longitude" type="text" placeholder="-75.56" readonly required />
                     </div>
                 </div>
+                
                 <button type="button" id="btn-random" class="btn btn-secondary">
                     🎲 Generar datos aleatorios
                 </button>
+                
                 <button type="submit" class="btn btn-primary">
                     Crear cuenta
                 </button>
-                <p class="auth-error hidden">
+                
+                <p class="auth-error hidden" id="auth-error">
                     Error al crear la cuenta. Verifica los datos.
+                </p>
+                
+                <p class="auth-success hidden" id="auth-success">
+                    ¡Cuenta creada exitosamente!
                 </p>
             </form>
             <footer class="auth-footer">
@@ -68,223 +74,262 @@ function registerTemplate() {
             </footer>
         </section>
     `;
+
+    setTimeout(() => {
+        attachEventListeners();
+    }, 0);
+
     return main;
 }
 
-// ==================== LÓGICA Y EVENTOS ====================
-/**
- * Página principal de registro con toda la funcionalidad
- * @returns {HTMLElement} Componente completo de registro
- */
-export function registerPage() {
-    const main = registerTemplate();
-    const form = main.querySelector('.auth-form');
-    const errorElement = form.querySelector('.auth-error');
+function attachEventListeners() {
+    console.log('🔗 [REGISTER] Adjuntando event listeners');
 
-    // Obtener referencias a los elementos del formulario
-    const nameInput = form.querySelector('#register-name');
-    const emailInput = form.querySelector('#register-email');
-    const passwordInput = form.querySelector('#register-password');
-    const confirmPasswordInput = form.querySelector('#register-confirm-password');
-    const cityInput = form.querySelector('#city');
-    const latitudeInput = form.querySelector('#latitude');
-    const longitudeInput = form.querySelector('#longitude');
-    const randomButton = form.querySelector('#btn-random');
+    const btnRandom = document.getElementById('btn-random');
+    const cityInput = document.getElementById('city');
+    const form = document.getElementById('register-form');
 
-    // ===== Event Listener: Generar datos aleatorios =====
-    randomButton.addEventListener('click', async () => {
-        try {
-            randomButton.disabled = true;
-            randomButton.innerHTML = '⏳ Cargando...';
+    if (btnRandom) {
+        console.log('✅ [REGISTER] Botón aleatorio encontrado');
+        btnRandom.addEventListener('click', fillRandomData);
+    }
 
-            const userData = await getRandomUser();
+    if (cityInput) {
+        console.log('✅ [REGISTER] Input de ciudad encontrado');
+        let debounceTimer;
+        cityInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchCity(e.target.value);
+            }, 500);
+        });
+    }
 
-            // Rellenar los campos del formulario
-            nameInput.value = userData.fullName;
-            emailInput.value = userData.email;
-            passwordInput.value = userData.password;
-            confirmPasswordInput.value = userData.password;
-            latitudeInput.value = userData.latitude;
-            longitudeInput.value = userData.longitude;
-            cityInput.value = userData.city;
+    if (form) {
+        console.log('✅ [REGISTER] Formulario encontrado');
+        form.addEventListener('submit', handleRegister);
+    }
+}
 
-            randomButton.disabled = false;
-            randomButton.innerHTML = '🎲 Generar datos aleatorios';
+async function fillRandomData() {
+    console.log('🎲 [RANDOM USER] Solicitando datos aleatorios...');
 
-            showSuccess('Datos aleatorios generados correctamente');
-        } catch (error) {
-            showError('Error al generar datos aleatorios. Intenta de nuevo.');
-            randomButton.disabled = false;
-            randomButton.innerHTML = '🎲 Generar datos aleatorios';
+    try {
+        const response = await fetch('https://randomuser.me/api/');
+
+        if (!response.ok) {
+            throw new Error('Error al obtener datos aleatorios');
         }
+
+        const data = await response.json();
+        const user = data.results[0];
+
+        console.log('✅ [RANDOM USER] Datos obtenidos:', {
+            nombre: `${user.name.first} ${user.name.last}`,
+            email: user.email,
+            ciudad: user.location.city,
+            coordenadas: `${user.location.coordinates.latitude}, ${user.location.coordinates.longitude}`
+        });
+
+        document.getElementById('register-name').value =
+            `${user.name.first} ${user.name.last}`;
+        document.getElementById('register-email').value = user.email;
+        document.getElementById('register-password').value = user.login.password;
+        document.getElementById('register-confirm-password').value = user.login.password;
+        document.getElementById('city').value = user.location.city;
+        document.getElementById('latitude').value = user.location.coordinates.latitude;
+        document.getElementById('longitude').value = user.location.coordinates.longitude;
+
+        console.log('✅ [RANDOM USER] Formulario rellenado exitosamente');
+
+    } catch (error) {
+        console.error('❌ [RANDOM USER] Error:', error);
+        showError('No se pudieron generar datos aleatorios');
+    }
+}
+
+async function searchCity(cityName) {
+    if (cityName.length < 2) {
+        hideSuggestions();
+        return;
+    }
+
+    console.log(`🔍 [GEOCODING] Buscando ciudades para: "${cityName}"`);
+
+    try {
+        const response = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=5&language=es&format=json`
+        );
+
+        if (!response.ok) {
+            throw new Error('Error al buscar ciudades');
+        }
+
+        const data = await response.json();
+
+        if (data.results && data.results.length > 0) {
+            console.log(`✅ [GEOCODING] ${data.results.length} ciudades encontradas`);
+            showSuggestions(data.results);
+        } else {
+            console.log('⚠️ [GEOCODING] No se encontraron ciudades');
+            hideSuggestions();
+        }
+
+    } catch (error) {
+        console.error('❌ [GEOCODING] Error al buscar ciudad:', error);
+    }
+}
+
+function showSuggestions(cities) {
+    console.log('📋 [GEOCODING] Mostrando sugerencias de ciudades');
+
+    const suggestionsList = document.getElementById('city-suggestions');
+    suggestionsList.innerHTML = '';
+    suggestionsList.classList.remove('hidden');
+
+    cities.forEach(city => {
+        const li = document.createElement('li');
+        li.textContent = `${city.name}, ${city.country}`;
+        li.classList.add('suggestion-item');
+
+        li.addEventListener('click', () => {
+            selectCity(city);
+        });
+
+        suggestionsList.appendChild(li);
+    });
+}
+
+function hideSuggestions() {
+    const suggestionsList = document.getElementById('city-suggestions');
+    suggestionsList.classList.add('hidden');
+    suggestionsList.innerHTML = '';
+}
+
+function selectCity(city) {
+    console.log('📍 [GEOCODING] Ciudad seleccionada:', {
+        nombre: city.name,
+        país: city.country,
+        latitud: city.latitude,
+        longitud: city.longitude
     });
 
-    // ===== Event Listener: Buscar ciudad y autocompletar coordenadas =====
-    let searchTimeout;
+    document.getElementById('city').value = city.name;
+    document.getElementById('latitude').value = city.latitude;
+    document.getElementById('longitude').value = city.longitude;
+    hideSuggestions();
+}
 
-    cityInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
+async function handleRegister(e) {
+    e.preventDefault();
+    console.log('📝 [REGISTER] Iniciando proceso de registro...');
 
-        const cityName = e.target.value.trim();
+    const name = document.getElementById('register-name').value.trim();
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm-password').value;
+    const role = document.getElementById('register-role').value;
+    const city = document.getElementById('city').value.trim();
+    const latitude = document.getElementById('latitude').value;
+    const longitude = document.getElementById('longitude').value;
 
-        if (cityName.length >= 3) {
-            // Mostrar indicador de búsqueda
-            cityInput.style.borderColor = '#ffa500';
-
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const cityData = await getCityCoordinates(cityName);
-
-                    // Autocompletar latitud y longitud
-                    latitudeInput.value = cityData.latitude;
-                    longitudeInput.value = cityData.longitude;
-
-                    // Actualizar el campo ciudad con el nombre formateado
-                    cityInput.value = cityData.city;
-                    cityInput.style.borderColor = '#4CAF50';
-
-                    setTimeout(() => {
-                        cityInput.style.borderColor = '';
-                    }, 2000);
-                } catch (error) {
-                    console.error('Error al buscar ciudad:', error);
-                    cityInput.style.borderColor = '#f44336';
-
-                    setTimeout(() => {
-                        cityInput.style.borderColor = '';
-                    }, 2000);
-                }
-            }, 500); // Esperar 500ms después de que el usuario deje de escribir
-        }
+    console.log('📋 [REGISTER] Datos del formulario:', {
+        nombre: name,
+        email: email,
+        rol: role,
+        ciudad: city,
+        coordenadas: `${latitude}, ${longitude}`
     });
 
-    // ===== Event Listener: Submit del formulario =====
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // Validaciones
+    if (!name || !email || !password || !city || !latitude || !longitude) {
+        console.warn('⚠️ [REGISTER] Validación fallida: Campos incompletos');
+        showError('Por favor completa todos los campos');
+        return;
+    }
 
-        // Recopilar datos del formulario
-        const formData = {
-            name: nameInput.value.trim(),
-            email: emailInput.value.trim(),
-            password: passwordInput.value,
-            confirmPassword: confirmPasswordInput.value,
-            city: cityInput.value.trim(),
-            latitude: latitudeInput.value.trim(),
-            longitude: longitudeInput.value.trim()
-        };
+    if (password !== confirmPassword) {
+        console.warn('⚠️ [REGISTER] Validación fallida: Contraseñas no coinciden');
+        showError('Las contraseñas no coinciden');
+        return;
+    }
 
-        // Validar campos vacíos
-        if (!formData.name || !formData.email || !formData.password ||
-            !formData.confirmPassword || !formData.city ||
-            !formData.latitude || !formData.longitude) {
-            showError('Todos los campos son obligatorios');
-            return;
-        }
+    if (password.length < 6) {
+        console.warn('⚠️ [REGISTER] Validación fallida: Contraseña muy corta');
+        showError('La contraseña debe tener al menos 6 caracteres');
+        return;
+    }
 
-        // Validar email
-        if (!validateEmail(formData.email)) {
-            showError('El correo electrónico no es válido');
-            return;
-        }
+    console.log('✅ [REGISTER] Validaciones pasadas correctamente');
 
-        // Validar contraseñas
-        if (!validatePasswordMatch(formData.password, formData.confirmPassword)) {
-            showError('Las contraseñas no coinciden o son muy cortas (mínimo 6 caracteres)');
-            return;
-        }
+    const userData = {
+        name,
+        email,
+        password,
+        role,
+        city,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+        createdAt: new Date().toISOString()
+    };
 
-        // Validar coordenadas
-        if (isNaN(formData.latitude) || isNaN(formData.longitude)) {
-            showError('Las coordenadas deben ser valores numéricos');
-            return;
-        }
+    console.log('🚀 [REGISTER] Enviando datos al servidor...');
+    const result = await register(userData);
 
-        // Guardar usuario en localStorage (o enviar a API)
-        saveUser(formData);
+    if (result.success) {
+        console.log('✅ [REGISTER] Usuario creado exitosamente:', result.user);
 
-        // Mostrar éxito y redirigir
-        showSuccess('¡Cuenta creada exitosamente! Redirigiendo...');
+        localStorage.removeItem('activeUser');
+        console.log('🗑️ [REGISTER] localStorage limpiado');
 
+        showSuccess('¡Cuenta creada exitosamente! Redirigiendo a login...');
+
+        console.log('⏳ [REGISTER] Esperando 2 segundos antes de redirigir...');
         setTimeout(() => {
-            window.location.hash = '#/login';
-        }, 1500);
-    });
+            console.log('🔄 [REGISTER] Redirigiendo a login...');
+            window.location.hash = '#login';
+            console.log('✅ [REGISTER] Hash cambiado a #login');
+        }, 2000);
+    } else {
+        console.error('❌ [REGISTER] Error al crear usuario:', result.error);
+        showError(result.error);
+    }
+}
 
-    // ===== Funciones auxiliares =====
+function showError(message) {
+    console.error('❌ [UI] Mostrando error:', message);
 
-    /**
-     * Muestra mensaje de error
-     * @param {string} message - Mensaje a mostrar
-     */
-    function showError(message) {
+    const errorElement = document.getElementById('auth-error');
+    const successElement = document.getElementById('auth-success');
+
+    if (errorElement) {
         errorElement.textContent = message;
         errorElement.classList.remove('hidden');
-        errorElement.style.backgroundColor = '#ffebee';
-        errorElement.style.color = '#c62828';
-
-        setTimeout(() => {
-            errorElement.classList.add('hidden');
-        }, 4000);
     }
 
-    /**
-     * Muestra mensaje de éxito
-     * @param {string} message - Mensaje a mostrar
-     */
-    function showSuccess(message) {
-        errorElement.textContent = message;
-        errorElement.classList.remove('hidden');
-        errorElement.style.backgroundColor = '#e8f5e9';
-        errorElement.style.color = '#2e7d32';
-
-        setTimeout(() => {
-            errorElement.classList.add('hidden');
-        }, 4000);
+    if (successElement) {
+        successElement.classList.add('hidden');
     }
 
-    /**
-     * Guarda el usuario en localStorage
-     * @param {Object} userData - Datos del usuario
-     */
-    function saveUser(userData) {
-        try {
-            // Obtener usuarios existentes
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-
-            // Verificar si el email ya existe
-            const emailExists = users.some(user => user.email === userData.email);
-
-            if (emailExists) {
-                showError('Este correo electrónico ya está registrado');
-                return false;
-            }
-
-            // Crear objeto de usuario
-            const newUser = {
-                id: Date.now(),
-                name: userData.name,
-                email: userData.email,
-                password: userData.password, // En producción: hashear la contraseña
-                city: userData.city,
-                latitude: parseFloat(userData.latitude),
-                longitude: parseFloat(userData.longitude),
-                createdAt: new Date().toISOString()
-            };
-
-            // Agregar nuevo usuario
-            users.push(newUser);
-
-            // Guardar en localStorage
-            localStorage.setItem('users', JSON.stringify(users));
-
-            console.log('Usuario registrado:', newUser);
-            return true;
-        } catch (error) {
-            console.error('Error al guardar usuario:', error);
-            showError('Error al guardar el usuario. Intenta de nuevo.');
-            return false;
+    setTimeout(() => {
+        if (errorElement) {
+            errorElement.classList.add('hidden');
         }
+    }, 5000);
+}
+
+function showSuccess(message) {
+    console.log('✅ [UI] Mostrando éxito:', message);
+
+    const errorElement = document.getElementById('auth-error');
+    const successElement = document.getElementById('auth-success');
+
+    if (successElement) {
+        successElement.textContent = message;
+        successElement.classList.remove('hidden');
     }
 
-    return main;
+    if (errorElement) {
+        errorElement.classList.add('hidden');
+    }
 }

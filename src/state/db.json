@@ -1,4 +1,16 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": "f22d",
+      "name": "Landon Ramirez",
+      "email": "landon.ramirez@example.com",
+      "password": "123456",
+      "role": "user",
+      "city": "Bowral",
+      "latitude": -89.8456,
+      "longitude": -16.4054,
+      "createdAt": "2026-01-28T01:50:02.977Z"
+    }
+  ],
   "proyects": []
 }

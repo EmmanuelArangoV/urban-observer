@@ -1,11 +1,11 @@
-/*
-import {loginTemplate} from './views/login.js';
+import {router} from './router/router.js';
 
-const app = document.getElementById('app');
-app.appendChild(loginTemplate())
- */
-
-import {registerPage} from "./views/register.js";
-
-const app = document.getElementById('app');
-app.appendChild(registerPage())
+export function render(view) {
+    const app = document.getElementById('app');
+    if (app) {
+        app.innerHTML = '';
+        if (view) {
+            app.appendChild(view);
+        }
+    }
+}
