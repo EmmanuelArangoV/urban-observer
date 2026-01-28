@@ -21,6 +21,28 @@
       "latitude": -6.8342,
       "longitude": 126.8656,
       "createdAt": "2026-01-28T02:19:01.007Z"
+    },
+    {
+      "id": "478f",
+      "name": "Milos Moreau",
+      "email": "milos.moreau@example.com",
+      "password": "homerun",
+      "role": "user",
+      "city": "Francia",
+      "latitude": 46,
+      "longitude": 2,
+      "createdAt": "2026-01-28T02:22:13.883Z"
+    },
+    {
+      "id": "57de",
+      "name": "Quéli da Paz",
+      "email": "queli.dapaz@example.com",
+      "password": "bigbear",
+      "role": "user",
+      "city": "Popayán",
+      "latitude": 8.67028,
+      "longitude": -76.20917,
+      "createdAt": "2026-01-28T02:28:41.752Z"
     }
   ],
   "proyects": []

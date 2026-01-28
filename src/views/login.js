@@ -1,7 +1,6 @@
 import {login} from '../services/authService.js';
 
 export function loginTemplate() {
-    console.log('📄 [LOGIN] Template cargado');
 
     const main = document.createElement('main');
     main.classList.add('auth-body');
@@ -53,54 +52,52 @@ export function loginTemplate() {
 }
 
 function attachEventListeners() {
-    console.log('🔗 [LOGIN] Adjuntando event listeners');
 
     const form = document.getElementById('login-form');
 
     if (form) {
-        console.log('✅ [LOGIN] Formulario encontrado');
+        console.log('[LOGIN] Formulario encontrado');
         form.addEventListener('submit', handleLogin);
     }
 }
 
 async function handleLogin(e) {
     e.preventDefault();
-    console.log('📝 [LOGIN] Iniciando proceso de login...');
 
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
-    console.log('📋 [LOGIN] Datos de login:', {email});
+    console.log('[LOGIN] Datos de login:', {email});
 
     // Validaciones
     if (!email || !password) {
-        console.warn('⚠️ [LOGIN] Validación fallida: Campos vacíos');
+        console.warn('[LOGIN] Validación fallida: Campos vacíos');
         showError('Por favor completa todos los campos');
         return;
     }
 
-    console.log('🚀 [LOGIN] Enviando credenciales al servidor...');
+    console.log('[LOGIN] Enviando credenciales al servidor...');
 
     const result = await login(email, password);
 
     if (result.success) {
-        console.log('✅ [LOGIN] Login exitoso:', result.user);
+        console.log('[LOGIN] Login exitoso:', result.user);
         showSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
 
-        console.log('⏳ [LOGIN] Esperando 1.5 segundos antes de redirigir...');
+        console.log('[LOGIN] Esperando 1 segundos antes de redirigir...');
         setTimeout(() => {
-            console.log('🔄 [LOGIN] Redirigiendo a dashboard...');
+            console.log('[LOGIN] Redirigiendo a dashboard...');
             window.location.hash = '#dashboard';
-            console.log('✅ [LOGIN] Hash cambiado a #dashboard');
-        }, 1500);
+            console.log('[LOGIN] Hash cambiado a #dashboard');
+        }, 1000);
     } else {
-        console.error('❌ [LOGIN] Login fallido:', result.error);
+        console.error('[LOGIN] Login fallido:', result.error);
         showError(result.error);
     }
 }
 
 function showError(message) {
-    console.error('❌ [UI] Mostrando error:', message);
+    console.error('[UI] Mostrando error:', message);
 
     const errorElement = document.getElementById('auth-error');
     const successElement = document.getElementById('auth-success');
@@ -122,7 +119,7 @@ function showError(message) {
 }
 
 function showSuccess(message) {
-    console.log('✅ [UI] Mostrando éxito:', message);
+    console.log('[UI] Mostrando éxito:', message);
 
     const errorElement = document.getElementById('auth-error');
     const successElement = document.getElementById('auth-success');

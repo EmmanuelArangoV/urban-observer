@@ -1,7 +1,7 @@
 import {register} from '../services/authService.js';
 
 export function registerTemplate() {
-    console.log('📄 [REGISTER] Template cargado');
+    console.log('[REGISTER] Template cargado');
 
     const main = document.createElement('main');
     main.classList.add('auth-body');
@@ -53,7 +53,7 @@ export function registerTemplate() {
                 </div>
                 
                 <button type="button" id="btn-random" class="btn btn-secondary">
-                    🎲 Generar datos aleatorios
+                    Generar datos aleatorios
                 </button>
                 
                 <button type="submit" class="btn btn-primary">
@@ -83,19 +83,19 @@ export function registerTemplate() {
 }
 
 function attachEventListeners() {
-    console.log('🔗 [REGISTER] Adjuntando event listeners');
+    console.log('[REGISTER] Adjuntando event listeners');
 
     const btnRandom = document.getElementById('btn-random');
     const cityInput = document.getElementById('city');
     const form = document.getElementById('register-form');
 
     if (btnRandom) {
-        console.log('✅ [REGISTER] Botón aleatorio encontrado');
+        console.log('[REGISTER] Botón aleatorio encontrado');
         btnRandom.addEventListener('click', fillRandomData);
     }
 
     if (cityInput) {
-        console.log('✅ [REGISTER] Input de ciudad encontrado');
+        console.log('[REGISTER] Input de ciudad encontrado');
         let debounceTimer;
         cityInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
@@ -106,13 +106,13 @@ function attachEventListeners() {
     }
 
     if (form) {
-        console.log('✅ [REGISTER] Formulario encontrado');
+        console.log('[REGISTER] Formulario encontrado');
         form.addEventListener('submit', handleRegister);
     }
 }
 
 async function fillRandomData() {
-    console.log('🎲 [RANDOM USER] Solicitando datos aleatorios...');
+    console.log('[RANDOM USER] Solicitando datos aleatorios...');
 
     try {
         const response = await fetch('https://randomuser.me/api/');
@@ -124,7 +124,7 @@ async function fillRandomData() {
         const data = await response.json();
         const user = data.results[0];
 
-        console.log('✅ [RANDOM USER] Datos obtenidos:', {
+        console.log('[RANDOM USER] Datos obtenidos:', {
             nombre: `${user.name.first} ${user.name.last}`,
             email: user.email,
             ciudad: user.location.city,
@@ -140,10 +140,10 @@ async function fillRandomData() {
         document.getElementById('latitude').value = user.location.coordinates.latitude;
         document.getElementById('longitude').value = user.location.coordinates.longitude;
 
-        console.log('✅ [RANDOM USER] Formulario rellenado exitosamente');
+        console.log('[RANDOM USER] Formulario rellenado exitosamente');
 
     } catch (error) {
-        console.error('❌ [RANDOM USER] Error:', error);
+        console.error('[RANDOM USER] Error:', error);
         showError('No se pudieron generar datos aleatorios');
     }
 }
@@ -154,7 +154,7 @@ async function searchCity(cityName) {
         return;
     }
 
-    console.log(`🔍 [GEOCODING] Buscando ciudades para: "${cityName}"`);
+    console.log(`[GEOCODING] Buscando ciudades para: "${cityName}"`);
 
     try {
         const response = await fetch(
@@ -168,20 +168,20 @@ async function searchCity(cityName) {
         const data = await response.json();
 
         if (data.results && data.results.length > 0) {
-            console.log(`✅ [GEOCODING] ${data.results.length} ciudades encontradas`);
+            console.log(`[GEOCODING] ${data.results.length} ciudades encontradas`);
             showSuggestions(data.results);
         } else {
-            console.log('⚠️ [GEOCODING] No se encontraron ciudades');
+            console.log('[GEOCODING] No se encontraron ciudades');
             hideSuggestions();
         }
 
     } catch (error) {
-        console.error('❌ [GEOCODING] Error al buscar ciudad:', error);
+        console.error('[GEOCODING] Error al buscar ciudad:', error);
     }
 }
 
 function showSuggestions(cities) {
-    console.log('📋 [GEOCODING] Mostrando sugerencias de ciudades');
+    console.log('[GEOCODING] Mostrando sugerencias de ciudades');
 
     const suggestionsList = document.getElementById('city-suggestions');
     suggestionsList.innerHTML = '';
@@ -207,7 +207,7 @@ function hideSuggestions() {
 }
 
 function selectCity(city) {
-    console.log('📍 [GEOCODING] Ciudad seleccionada:', {
+    console.log('[GEOCODING] Ciudad seleccionada:', {
         nombre: city.name,
         país: city.country,
         latitud: city.latitude,
@@ -222,7 +222,7 @@ function selectCity(city) {
 
 async function handleRegister(e) {
     e.preventDefault();
-    console.log('📝 [REGISTER] Iniciando proceso de registro...');
+    console.log('[REGISTER] Iniciando proceso de registro...');
 
     const name = document.getElementById('register-name').value.trim();
     const email = document.getElementById('register-email').value.trim();
@@ -233,7 +233,7 @@ async function handleRegister(e) {
     const latitude = document.getElementById('latitude').value;
     const longitude = document.getElementById('longitude').value;
 
-    console.log('📋 [REGISTER] Datos del formulario:', {
+    console.log('[REGISTER] Datos del formulario:', {
         nombre: name,
         email: email,
         rol: role,
@@ -243,24 +243,24 @@ async function handleRegister(e) {
 
     // Validaciones
     if (!name || !email || !password || !city || !latitude || !longitude) {
-        console.warn('⚠️ [REGISTER] Validación fallida: Campos incompletos');
+        console.warn('[REGISTER] Validación fallida: Campos incompletos');
         showError('Por favor completa todos los campos');
         return;
     }
 
     if (password !== confirmPassword) {
-        console.warn('⚠️ [REGISTER] Validación fallida: Contraseñas no coinciden');
+        console.warn('[REGISTER] Validación fallida: Contraseñas no coinciden');
         showError('Las contraseñas no coinciden');
         return;
     }
 
-    if (password.length < 6) {
-        console.warn('⚠️ [REGISTER] Validación fallida: Contraseña muy corta');
+    if (password.length < 3) {
+        console.warn('[REGISTER] Validación fallida: Contraseña muy corta');
         showError('La contraseña debe tener al menos 6 caracteres');
         return;
     }
 
-    console.log('✅ [REGISTER] Validaciones pasadas correctamente');
+    console.log('[REGISTER] Validaciones pasadas correctamente');
 
     const userData = {
         name,
@@ -273,31 +273,31 @@ async function handleRegister(e) {
         createdAt: new Date().toISOString()
     };
 
-    console.log('🚀 [REGISTER] Enviando datos al servidor...');
+    console.log('[REGISTER] Enviando datos al servidor...');
     const result = await register(userData);
 
     if (result.success) {
-        console.log('✅ [REGISTER] Usuario creado exitosamente:', result.user);
+        console.log('[REGISTER] Usuario creado exitosamente:', result.user);
 
         localStorage.removeItem('activeUser');
-        console.log('🗑️ [REGISTER] localStorage limpiado');
+        console.log('[REGISTER] localStorage limpiado');
 
         showSuccess('¡Cuenta creada exitosamente! Redirigiendo a login...');
 
-        console.log('⏳ [REGISTER] Esperando 2 segundos antes de redirigir...');
+        console.log('[REGISTER] Esperando 2 segundos antes de redirigir...');
         setTimeout(() => {
-            console.log('🔄 [REGISTER] Redirigiendo a login...');
+            console.log('[REGISTER] Redirigiendo a login...');
             window.location.hash = '#login';
-            console.log('✅ [REGISTER] Hash cambiado a #login');
-        }, 2000);
+            console.log('[REGISTER] Hash cambiado a #login');
+        }, 200);
     } else {
-        console.error('❌ [REGISTER] Error al crear usuario:', result.error);
+        console.error('[REGISTER] Error al crear usuario:', result.error);
         showError(result.error);
     }
 }
 
 function showError(message) {
-    console.error('❌ [UI] Mostrando error:', message);
+    console.error('[UI] Mostrando error:', message);
 
     const errorElement = document.getElementById('auth-error');
     const successElement = document.getElementById('auth-success');
@@ -319,7 +319,7 @@ function showError(message) {
 }
 
 function showSuccess(message) {
-    console.log('✅ [UI] Mostrando éxito:', message);
+    console.log('[UI] Mostrando éxito:', message);
 
     const errorElement = document.getElementById('auth-error');
     const successElement = document.getElementById('auth-success');
