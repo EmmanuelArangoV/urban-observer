@@ -1,7 +1,49 @@
 import {renderForecastItem} from "../components/ForecastItem.js";
+import { WEATHER_CODES} from "../utils/constants.js";
+import MeteoService from "../services/meteoService.js";
+import { LoadingView} from "../components/Loading.js";
+import JsonService from "../services/jsonService.js";
+import {getWeatherIcon, getWeatherIconColor, getMetricIcon} from "../utils/helpers.js";
+import jsonService from "../services/jsonService.js";
+import {formatDate} from "../utils/helpers.js";
+
+async function getData(id) {
+    try{
+        const project = await jsonService.getProjectById(id);
+        const weather = await MeteoService.getDetailWeather(project.lat, project.lon);
 
 
-export function renderDetailView() {
+        const response = {ciudad: project.city,
+            coords: {lat: project.lat, lon: project.lon},
+            status: project.status,
+            description: project.description,
+            current: {
+                temperature: weather.current.temperature,
+                apparentTemperature: weather.hourly.apparentTemperature},
+            code: weather.current.weatherCode,
+            wind: {
+                speed: weather.current.windSpeed,
+                direction: weather.current.windDirection
+            },
+            precipitation: weather.hourly.precipitation,
+            humidity: weather.hourly.humidity,
+            visibility: weather.hourly.visibility,
+            sunrise: weather.sun.sunrise,
+            sunset: weather.sun.sunset,
+            lastUpdate:formatDate(weather.current.time),
+            forecast: weather.forecast,
+
+        };
+
+        return response;
+
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+export function renderDetailView(id) {
+    const data = getData(id);
 
 // 1. Datos para los pronósticos
     const forecastData = [
@@ -12,14 +54,20 @@ export function renderDetailView() {
         {time: "18:00", temp: "20°", condition: "Nublado"},
         {time: "19:00", temp: "19°", condition: "Parcialmente nublado"}
     ];
-    // 3. Generación del HTML
-    const forecastHTML = forecastData.map(renderForecastItem).join('');
+
 
     const main = document.createElement('main');
-    main.innerHTML =`
-    <!-- Main Content -->
+    main.innerHTML = LoadingView();
 
-        <div class="detail-container">
+    getData(id).then((data) => {
+        if (!data) {
+            main.innerHTML = `<div class="container"><p class="error">No se pudieron cargar los detalles.</p></div>`;
+            return;
+        }
+        const forecastData = data.forecast;
+        const forecastHTML = forecastData.map(fore => renderForecastItem(fore)).join('');
+        console.log(forecastHTML);
+        main.innerHTML = `<div class="detail-container">
             <div class="container">
                 <!-- Back Button -->
                 <a href="#" class="back-button">
@@ -38,13 +86,13 @@ export function renderDetailView() {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                             <div>
-                                <h1 class="detail-title">Ciudad de México</h1>
-                                <p class="detail-coords">Lat: 19.4326 / Lon: -99.1332</p>
+                                <h1 class="detail-title">${data.ciudad}</h1>
+                                <p class="detail-coords">Lat: ${data.coords.lat} / Lon: ${data.coords.lon}</p>
                             </div>
                         </div>
-                        <span class="badge active" style="font-size: 1rem; padding: 0.5rem 1rem;">Activo</span>
+                        <span class="badge active" style="font-size: 1rem; padding: 0.5rem 1rem;">${data.status}</span>
                     </div>
-                    <p class="detail-description">Monitoreo climático y ambiental en la zona metropolitana para prevención de contingencias ambientales y apoyo en la toma de decisiones para planeación urbana.</p>
+                    <p class="detail-description">${data.description}</p>
                 </div>
 
                 <!-- Main Content Grid -->
@@ -57,14 +105,15 @@ export function renderDetailView() {
                             <div class="temp-display">
                                 <div>
                                     <div class="temp-main">
-                                        <span class="temp-number">22°</span>
-                                        <span class="temp-unit">C</span>
+                                        <span class="temp-number">${data.current.temperature}</span>
+                                        <span class="temp-unit">C°</span>
                                     </div>
-                                    <p class="temp-feels">Sensación térmica: 20°C</p>
+                                    <p class="temp-feels">Sensación térmica: ${data.current.apparentTemperature} C°</p>
                                 </div>
-                                <svg class="temp-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                <svg class="temp-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: ${getWeatherIconColor(data.code)};">
+                                    ${getWeatherIcon(data.code)}
                                 </svg>
+                                
                             </div>
 
                             <!-- Metrics Grid -->
@@ -74,8 +123,8 @@ export function renderDetailView() {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                     </svg>
                                     <p class="metric-label">Viento</p>
-                                    <p class="metric-value">15 km/h</p>
-                                    <p class="metric-extra">NE</p>
+                                    <p class="metric-value">${data.wind.speed} Km/h</p>
+                                    <p class="metric-extra">${data.wind.direction}</p>
                                 </div>
 
                                 <div class="metric-card sky">
@@ -83,7 +132,7 @@ export function renderDetailView() {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
                                     </svg>
                                     <p class="metric-label">Precipitación</p>
-                                    <p class="metric-value">0 mm</p>
+                                    <p class="metric-value">${data.precipitation} mm/h</p>
                                 </div>
 
                                 <div class="metric-card teal">
@@ -91,7 +140,7 @@ export function renderDetailView() {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                     </svg>
                                     <p class="metric-label">Humedad</p>
-                                    <p class="metric-value">65%</p>
+                                    <p class="metric-value">${data.humidity}%</p>
                                 </div>
 
                                 <div class="metric-card purple">
@@ -100,7 +149,7 @@ export function renderDetailView() {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
                                     <p class="metric-label">Visibilidad</p>
-                                    <p class="metric-value">10 km</p>
+                                    <p class="metric-value">${data.visibility}%</p>
                                 </div>
                             </div>
                         </div>
@@ -119,7 +168,7 @@ export function renderDetailView() {
                                         </svg>
                                         <span>Amanecer</span>
                                     </div>
-                                    <span class="sun-time">06:45</span>
+                                    <span class="sun-time">${data.sunrise}</span>
                                 </div>
                                 <div class="sun-item">
                                     <div class="sun-label">
@@ -128,7 +177,7 @@ export function renderDetailView() {
                                         </svg>
                                         <span>Atardecer</span>
                                     </div>
-                                    <span class="sun-time">19:30</span>
+                                    <span class="sun-time">${data.sunset}</span>
                                 </div>
                             </div>
                         </div>
@@ -141,7 +190,7 @@ export function renderDetailView() {
                                 </svg>
                                 <div>
                                     <p class="update-label">Última actualización</p>
-                                    <p class="update-date">21 de enero, 2026 - 13:45</p>
+                                    <p class="update-date">${data.lastUpdate}</p>
                                 </div>
                             </div>
                         </div>
@@ -167,8 +216,7 @@ export function renderDetailView() {
                     </p>
                 </div>
             </div>
-        </div>
-
-  `;
+        </div>`;
+    });
     return main;
 }

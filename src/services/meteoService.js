@@ -42,14 +42,15 @@ class MeteoService {
     async getDetailWeather(latitude, longitude) {
         try {
             const URL = `${API_URLS.WEATHER}?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation,windspeed_10m,visibility,weathercode&daily=sunrise,sunset&timezone=auto&forecast_days=1`;
+            const response = await fetch(URL);
 
-            const response = await fetch(url);
 
             if (!response.ok) {
                 throw new Error(`Error HTTP ${response.status}`);
             }
 
             const data = await response.json();
+
 
             //Datos actuales
             const current = {
@@ -67,24 +68,27 @@ class MeteoService {
             const currentHour = remoteDate.getHours();
             const hourlyData = data.hourly;
 
+
             //Datos horarios actuales
             const hourly = {
-                humidity: hourlyData.relativehumidity_2m[remoteDate],
-                precipitation: hourlyData.precipitation[remoteDate],
-                visibility: hourlyData.visibility[remoteDate] / 1000, //Convertir a km
-                apparentTemperature: Math.round(hourlyData.temperature_2m[remoteDate])
+                humidity: hourlyData.relativehumidity_2m[currentHour],
+                precipitation: hourlyData.precipitation[currentHour],
+                visibility: hourlyData.visibility[currentHour] / 1000, //Convertir a km
+                apparentTemperature: Math.round(hourlyData.temperature_2m[currentHour] / 1000),
             };
 
             const forecast = [];
-            for (let i = remoteDate; i < 6 && i < 24; i++) {
+            for (let i = currentHour; i < 6 && i < 24; i++) {
                 forecast.push({
                     time: `${i}:00`,
                     temperature: Math.round(hourlyData.temperature_2m[i]),
                     weatherCode: hourlyData.weathercode[i],
+
                     condition: WEATHER_CODES[hourlyData.weathercode[i]] || 'Desconocido'
 
                 });
             }
+            console.log("loca", forecast);
             //sol y puesta
             const sun = {
                 sunrise: data.daily.sunrise[0].split('T')[1],

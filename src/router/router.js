@@ -2,11 +2,12 @@ import {render} from "../main.js";
 import {registerTemplate} from "../views/register.js";
 import {loginTemplate} from "../views/login.js";
 import {DashboardView} from "../views/dashboard.js"
+import {renderDetailView} from "../views/detail.js";
 
 const routes = {
     'login': loginTemplate,
     'register': registerTemplate,
-    'detail': null,
+    'detail': renderDetailView,
     'dashboard': DashboardView,
     'create-project': null,
 }
@@ -17,14 +18,14 @@ export function router() {
     console.log('📍 [ROUTER] Hash actual:', hash || '(vacío)');
 
     if (!hash || hash === '/') {
-        hash = 'login';
-        window.location.hash = 'login';
+        hash = 'detail';
+        window.location.hash = 'detail';
     }
 
     const viewFactory = routes[hash];
 
     if (viewFactory) {
-        render(viewFactory());
+        render(viewFactory("f3c3"));
     } else {
         console.error('[ROUTER] Ruta no encontrada:', hash);
         render(null);

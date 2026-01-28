@@ -44,6 +44,17 @@
       "status": "activo",
       "favorite": true,
       "createdAt": "2026-01-26T18:19:43.065Z"
+    },
+    {
+      "id": "f3c3",
+      "name": "Monitoreo Santiago de Chile",
+      "city": "Santiago de Chile, Región Metropolitana, Chile",
+      "lat": -33.4569,
+      "lon": -70.6483,
+      "description": "Ciudad Santiago de Chile, Región Metropolitana, Chile.",
+      "status": "pendiente",
+      "favorite": true,
+      "createdAt": "2026-01-26T13:27:35.150Z"
     }
   ]
 }
