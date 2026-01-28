@@ -4,7 +4,10 @@ export const API_URLS = {
     GEOCODING: 'https://geocoding-api.open-meteo.com/v1/search',
     RAMDON_USER: 'https://randomuser.me/',
     BASE_URL: 'http://localhost:3000'
+    USERS: 'http://localhost:3000/users',
+    PROJECTS: 'http://localhost:3000/projects'
 };
+
 // Códigos de clima Open-Meteo
 export const WEATHER_CODES = {
     0: 'Despejado',
