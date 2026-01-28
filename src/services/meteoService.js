@@ -13,12 +13,22 @@ class MeteoService {
 
             const data = await response.json();
 
+            const date = new Date(data.current.time);
+            const formattedDate = date.toLocaleString('es-CO', {
+                weekday: 'long',
+                year: '2-digit',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+
             return {
                 temperature: Math.round(data.current.temperature_2m),
                 windSpeed: Math.round(data.current.windspeed_10m),
                 windDirection: data.current.winddirection_10m,
                 rain: data.current.precipitation || 0,
-                time: data.current.time,
+                time: formattedDate,
                 elevation: data.elevation
             };
         } catch (error) {

@@ -11,13 +11,7 @@ export async function Card(projectId) {
         temperature: `${meteo_data.temperature}°C` || 'N/A',
         wind: `${meteo_data.windSpeed} km/h` || 'N/A',
         status: project_response.status || 'Inactivo',
-        updated: new Date().toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        }) || 'N/A',
+        updated: meteo_data.time || 'N/A',
         favorite: project_response.favorite || false,
         detailHref: `#/detailView/${projectId}`,
         rain: `${meteo_data.rain} mm/h` || '0 mm/h'
