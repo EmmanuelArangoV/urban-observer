@@ -13,7 +13,7 @@ export async function Card(projectId) {
         status: project_response.status || 'Inactivo',
         updated: meteo_data.time || 'N/A',
         favorite: project_response.favorite || false,
-        detailHref: `#/detailView/${projectId}`,
+        detailHref: `#detail/${projectId}`,
         rain: `${meteo_data.rain} mm/h` || '0 mm/h'
     };
 

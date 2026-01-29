@@ -1,43 +1,53 @@
-import {render} from "../main.js";
-import {registerTemplate} from "../views/register.js";
-import {loginTemplate} from "../views/login.js";
-import {DashboardView} from "../views/dashboard.js"
-import {renderCreateProject} from "../views/create";
+import { render } from '../main.js';
+import { DashboardView } from '../views/dashboard.js';
+import { loginTemplate } from '../views/login.js';
+import { registerTemplate } from '../views/register.js';
+import { renderDetailView } from '../views/detail.js';
+import { getCurrentUser } from '../services/authService.js';
 
 const routes = {
+    '': DashboardView,
+    'dashboard': DashboardView,
     'login': loginTemplate,
     'register': registerTemplate,
-    'detail': null,
-    'dashboard': DashboardView,
-    'create': renderCreateProject,
-}
+    'detail': renderDetailView
+};
 
-export function router() {
+// Rutas que no requieren autenticación
+const publicRoutes = ['login', 'register'];
 
-    let hash = window.location.hash.slice(1);
-    console.log('📍 [ROUTER] Hash actual:', hash || '(vacío)');
+export async function router() {
+    // 1. Obtener el hash limpio (ej: "#/detail/1" -> "/detail/1")
+    const hash = window.location.hash.slice(1) || '/';
 
-    if (!hash || hash === '/') {
-        hash = 'login';
-        window.location.hash = 'login';
+    // 2. Dividirlo en partes
+    const parts = hash.split('/');
+    const routeName = parts[0] || 'dashboard'; // Por defecto dashboard si está vacío
+    const param = parts[1];
+
+    // 3. Verificar sesión
+    const user = getCurrentUser();
+
+    // 4. Lógica de protección de rutas
+    if (!user && !publicRoutes.includes(routeName)) {
+        // Si no hay usuario y la ruta no es pública, mandar al login
+        window.location.hash = '#login';
+        return;
     }
 
-    const viewFactory = routes[hash];
+    if (user && (routeName === 'login' || routeName === 'register')) {
+        // Si ya hay usuario y quiere ir al login/registro, mandar al dashboard
+        window.location.hash = '#dashboard';
+        return;
+    }
 
-    if (viewFactory) {
-        render(viewFactory());
+    // 5. Renderizar vista
+    const viewFn = routes[routeName];
+
+    if (viewFn) {
+        render(await viewFn(param));
     } else {
-        console.error('[ROUTER] Ruta no encontrada:', hash);
-        render(null);
+        console.error('Ruta no encontrada:', routeName);
+        window.location.hash = '#dashboard';
     }
 }
-
-// IMPORTANTE: Estos event listeners DEBEN estar al final del archivo
-
-window.addEventListener('hashchange', () => {
-    router();
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-    router();
-});

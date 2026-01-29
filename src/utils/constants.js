@@ -3,7 +3,7 @@ export const API_URLS = {
     WEATHER: 'https://api.open-meteo.com/v1/forecast',
     GEOCODING: 'https://geocoding-api.open-meteo.com/v1/search',
     RAMDON_USER: 'https://randomuser.me/',
-    BASE_URL: 'http://localhost:3000', 
+    BASE_URL: 'http://localhost:3000',
     USERS: 'http://localhost:3000/users',
     PROJECTS: 'http://localhost:3000/projects'
 };

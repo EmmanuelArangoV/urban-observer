@@ -62,17 +62,16 @@ export function DashboardView() {
     projectSection.innerHTML = `<div class="projects-grid"></div>`;
 
     const projectsGrid = projectSection.querySelector('.projects-grid');
-    projectsGrid.innerHTML = loadingHtml;
+
 
     (async () => {
         try {
+            projectsGrid.innerHTML = LoadingView();
             const projectIds = await JsonService.getProjectIds();
-            projectsGrid.innerHTML = '';
             const cardsArray = await Promise.all(projectIds.map(id => Card(id)));
             const cardsHtml = cardsArray.join('');
             projectsGrid.innerHTML = cardsHtml || `<p class="info">No hay proyectos disponibles.</p>`;
         } catch (error) {
-            projectsGrid.innerHTML = '';
             console.error('Error cargando proyectos:', error);
             projectsGrid.innerHTML = `<p class="error">No se pudieron cargar los proyectos. Intenta de nuevo más tarde.</p>`;
         }
