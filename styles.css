@@ -78,6 +78,8 @@ body {
 /* Search Bar */
 .search-section {
     padding: 2rem 0;
+    min-height: auto;
+    background: transparent;
 }
 
 .search-container {
@@ -1287,8 +1289,8 @@ select {
 
 .search-section {
     padding: 2rem 0;
-    min-height: calc(100vh - 200px);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: auto;
+    background: transparent;
 }
 
 .back-button {

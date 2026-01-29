@@ -2,23 +2,34 @@ import JsonService from "../services/jsonService.js";
 import MeteoService from "../services/meteoService.js";
 
 export async function Card(projectId) {
+    // Obtener el proyecto y los datos meteorológicos
     const project_response = await JsonService.getProjectById(projectId);
     const meteo_data = await MeteoService.getWeather(project_response.lat, project_response.lon);
+
+    // Normalizar estado para consistencia (insensible a mayúsculas)
+    const rawStatus = project_response.status || 'Inactivo';
+    const statusNormalized = rawStatus.toString().trim().toLowerCase();
+    const displayStatus = statusNormalized.charAt(0).toUpperCase() + statusNormalized.slice(1);
 
     const data = {
         city: project_response.city || 'Ciudad Desconocida',
         description: project_response.description || 'Sin descripción, disponible.',
         temperature: `${meteo_data.temperature}°C` || 'N/A',
         wind: `${meteo_data.windSpeed} km/h` || 'N/A',
-        status: project_response.status || 'Inactivo',
+        status: displayStatus,
+        statusNormalized,
         updated: meteo_data.time || 'N/A',
-        favorite: project_response.favorite || false,
+        favorite: !!project_response.favorite,
         detailHref: `#detail/${projectId}`,
         rain: `${meteo_data.rain} mm/h` || '0 mm/h'
     };
 
+    // Nota: devolvemos HTML como string. Para permitir que el dashboard capture clicks en el botón
+    // favorito usamos atributos data-project-id y la clase `favorite-button`.
+    // La lógica de toggle/actualización se realiza en `dashboard.js` por delegación de eventos.
+
     return `
-    <article class="project-card">
+    <article class="project-card" data-project-id="${projectId}">
       <div class="project-header">
         <div class="project-header-top">
           <div class="project-title-wrapper">
@@ -28,13 +39,15 @@ export async function Card(projectId) {
             </svg>
             <h3 class="project-title">${data.city}</h3> 
           </div>
-          <button class="favorite-button ${data.favorite ? 'active' : ''}" aria-label="Marcar como favorito">
+          <!-- Botón favorito: usamos data-attribute para identificar el id del proyecto y la clase 'favorite-button' -->
+          <button class="favorite-button ${data.favorite ? 'active' : ''}" aria-label="Marcar como favorito" data-project-id="${projectId}">
             <svg class="favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
             </svg>
           </button>
         </div>
-        <span class="badge ${data.status === 'activo' ? 'active' : ''}">${data.status}</span> 
+        <!-- Badge de estado (usa statusNormalized para decidir clase active) -->
+        <span class="badge ${data.statusNormalized === 'activo' ? 'active' : ''}">${data.status}</span> 
       </div>
       <div class="project-body">
         <p class="project-description">${data.description}</p> 

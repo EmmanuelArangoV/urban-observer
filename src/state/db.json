@@ -54,7 +54,7 @@
       "lon": -75.59913,
       "description": "Municipio ItagÜi, AN",
       "status": "activo",
-      "favorite": true,
+      "favorite": false,
       "createdAt": "2026-01-26T18:19:43.065Z"
     },
     {
@@ -87,7 +87,7 @@
       "lon": -75.69611,
       "description": "Pereira",
       "status": "Activo",
-      "favorite": false,
+      "favorite": true,
       "createdAt": "2026-01-29T01:25:13.935Z"
     }
   ]
