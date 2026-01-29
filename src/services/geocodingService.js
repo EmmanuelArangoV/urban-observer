@@ -1,4 +1,4 @@
-import {API_URLS} from "../utils/constants";
+import {API_URLS} from "../utils/constants.js";
 
 class geocodingService{
     constructor() {}

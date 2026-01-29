@@ -67,6 +67,28 @@
       "status": "pendiente",
       "favorite": true,
       "createdAt": "2026-01-26T13:27:35.150Z"
+    },
+    {
+      "id": "790b",
+      "name": "Monitoreo ambiental de Medellín",
+      "city": "Medellín, Antioquia Colombia",
+      "lat": 6.2518,
+      "lon": -75.5635,
+      "description": "Hola!",
+      "status": "Activo",
+      "favorite": false,
+      "createdAt": "2026-01-29T01:16:21.984Z"
+    },
+    {
+      "id": "3365",
+      "name": "Monitoreo ambiental de Pereira",
+      "city": "Pereira, Risaralda Colombia",
+      "lat": 4.81333,
+      "lon": -75.69611,
+      "description": "Pereira",
+      "status": "Activo",
+      "favorite": false,
+      "createdAt": "2026-01-29T01:25:13.935Z"
     }
   ]
 }

@@ -4,13 +4,15 @@ import { loginTemplate } from '../views/login.js';
 import { registerTemplate } from '../views/register.js';
 import { renderDetailView } from '../views/detail.js';
 import { getCurrentUser } from '../services/authService.js';
+import {renderCreateProject} from "../views/create.js";
 
 const routes = {
     '': DashboardView,
     'dashboard': DashboardView,
     'login': loginTemplate,
     'register': registerTemplate,
-    'detail': renderDetailView
+    'detail': renderDetailView,
+    'create': renderCreateProject
 };
 
 // Rutas que no requieren autenticación
