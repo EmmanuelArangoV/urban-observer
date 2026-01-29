@@ -1,129 +1,12 @@
-﻿export function renderCreateProject() {
-    const app = document.getElementById('app');
+﻿import {debounce} from "../utils/helpers";
+import geocodingService from "../services/geocodingService"
+import jsonService from "../services/jsonService";
+import router from "../router/router";
+
+export function renderCreateProject() {
+    const app = document.getElementById('main');
 
     app.innerHTML = `
-    <style>
-      @keyframes spin {
-        from { transform: translateY(-50%) rotate(0deg); }
-        to { transform: translateY(-50%) rotate(360deg); }
-      }
-      
-      @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      .search-section {
-        padding: 2rem 0;
-        min-height: calc(100vh - 200px);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-
-      .back-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        background: white;
-        color: #374151;
-        text-decoration: none;
-        border-radius: 0.5rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .back-button:hover {
-        background: #f9fafb;
-        transform: translateX(-4px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-
-      .back-icon {
-        width: 20px;
-        height: 20px;
-      }
-
-      #create-project-form input,
-      #create-project-form select,
-      #create-project-form textarea {
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      #create-project-form input:focus,
-      #create-project-form select:focus,
-      #create-project-form textarea:focus {
-        outline: none;
-        border-color: #2563eb !important;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-      }
-
-      #create-project-form input[readonly] {
-        cursor: not-allowed;
-      }
-
-      #cancel-btn:hover {
-        background: #f9fafb !important;
-        border-color: #9ca3af !important;
-      }
-
-      #submit-btn {
-        transition: all 0.3s ease;
-      }
-
-      #submit-btn:hover:not(:disabled) {
-        opacity: 0.9;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-      }
-
-      #submit-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      #city-results::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      #city-results::-webkit-scrollbar-track {
-        background: #f3f4f6;
-        border-radius: 4px;
-      }
-
-      #city-results::-webkit-scrollbar-thumb {
-        background: #d1d5db;
-        border-radius: 4px;
-      }
-
-      #city-results::-webkit-scrollbar-thumb:hover {
-        background: #9ca3af;
-      }
-
-      #form-error,
-      #form-success {
-        animation: slideDown 0.3s ease;
-      }
-
-      @media (max-width: 768px) {
-        .search-section {
-          padding: 1rem 0;
-        }
-
-        .search-section .container {
-          padding: 0 0.5rem !important;
-        }
-
-        .back-button {
-          font-size: 0.875rem;
-          padding: 0.5rem 0.75rem;
-        }
-
-        #create-project-form > div[style*="grid"] {
-          grid-template-columns: 1fr !important;
-        }
-      }
-    </style>
 
      <!-- Header -->
     <main>
@@ -292,13 +175,205 @@
     </main>
     <!-- Footer -->
   `;
-    /*
-    initHeaderEvents(() => {
-        authService.logout();
-        router.navigate('/login');
-    });
 
     initCreateFormEvents();
     initCitySearchEvents();
-    */
 }
+
+function initCitySearchEvents() {
+    const searchInput = document.getElementById('city-search-input');
+    const resultsContainer = document.getElementById('city-results');
+    const loader = document.getElementById('city-search-loader');
+    const cityInput = document.getElementById('city-input');
+    const latInput = document.getElementById('lat-input');
+    const lonInput = document.getElementById('lon-input');
+    const nameInput = document.getElementById('name-input');
+
+    // Búsqueda con debounce
+    const debouncedSearch = debounce(async (searchTerm) => {
+        if (searchTerm.length < 2) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        // Mostrar loader
+        loader.style.display = 'block';
+
+        try {
+            const cities = await geocodingService.searchCity(searchTerm);
+
+            // Ocultar loader
+            loader.style.display = 'none';
+
+            if (cities.length === 0) {
+                resultsContainer.innerHTML = `
+          <div style="padding: 1rem; text-align: center; color: #6b7280;">
+            No se encontraron ciudades
+          </div>
+        `;
+                resultsContainer.style.display = 'block';
+                return;
+            }
+
+            // Renderizar resultados
+            resultsContainer.innerHTML = cities.map(city => `
+        <div class="city-result-item" data-city='${JSON.stringify(city)}' 
+             style="padding: 0.75rem; cursor: pointer; border-bottom: 1px solid #f3f4f6; transition: background 0.2s;">
+          <div style="font-weight: 500; color: #111827;">${city.name}</div>
+          <div style="font-size: 0.75rem; color: #6b7280;">
+            ${city.admin1 ? city.admin1 + ', ' : ''}${city.country}
+          </div>
+          <div style="font-size: 0.625rem; color: #9ca3af; margin-top: 0.25rem;">
+            Lat: ${city.latitude.toFixed(4)}, Lon: ${city.longitude.toFixed(4)}
+          </div>
+        </div>
+      `).join('');
+
+            resultsContainer.style.display = 'block';
+
+            // Eventos hover
+            const items = resultsContainer.querySelectorAll('.city-result-item');
+            items.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    item.style.background = '#f9fafb';
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.style.background = 'white';
+                });
+                item.addEventListener('click', () => {
+                    const city = JSON.parse(item.dataset.city);
+                    selectCity(city);
+                });
+            });
+
+        } catch (error) {
+            loader.style.display = 'none';
+            resultsContainer.innerHTML = `
+        <div style="padding: 1rem; text-align: center; color: #dc2626;">
+          Error al buscar ciudades
+        </div>
+      `;
+            resultsContainer.style.display = 'block';
+        }
+    }, 500);
+
+    // Evento de búsqueda
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.trim();
+        debouncedSearch(searchTerm);
+    });
+
+    // Cerrar resultados al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+            resultsContainer.style.display = 'none';
+        }
+    });
+
+    // Función para seleccionar una ciudad
+    function selectCity(city) {
+        // Autocompletar campos
+        cityInput.value = city.displayName;
+        latInput.value = city.latitude;
+        lonInput.value = city.longitude;
+
+        // Sugerir nombre del proyecto
+        if (!nameInput.value) {
+            nameInput.value = `Monitoreo Ambiental ${city.name}`;
+        }
+
+        // Limpiar búsqueda
+        searchInput.value = '';
+        resultsContainer.style.display = 'none';
+
+        // Feedback visual
+        cityInput.style.borderColor = '#10b981';
+        latInput.style.borderColor = '#10b981';
+        lonInput.style.borderColor = '#10b981';
+
+        setTimeout(() => {
+            cityInput.style.borderColor = '#d1d5db';
+            latInput.style.borderColor = '#d1d5db';
+            lonInput.style.borderColor = '#d1d5db';
+        }, 1000);
+    }
+}
+
+/**
+ * Inicializa los eventos del formulario
+ */
+function initCreateFormEvents() {
+    const form = document.getElementById('create-project-form');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const formError = document.getElementById('form-error');
+    const formSuccess = document.getElementById('form-success');
+
+    // Botón cancelar
+    cancelBtn.addEventListener('click', () => {
+        router.navigate('/');
+    });
+
+    // Submit del formulario
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Ocultar mensajes previos
+        formError.style.display = 'none';
+        formSuccess.style.display = 'none';
+
+        // Obtener datos del formulario
+        const formData = new FormData(form);
+        const projectData = {
+            name: formData.get('name').trim(),
+            city: formData.get('city').trim(),
+            lat: parseFloat(formData.get('lat')),
+            lon: parseFloat(formData.get('lon')),
+            description: formData.get('description').trim(),
+            status: formData.get('status')
+        };
+
+        // Validaciones
+        if (!projectData.name || !projectData.city || !projectData.status) {
+            formError.textContent = 'Por favor completa todos los campos obligatorios';
+            formError.style.display = 'block';
+            return;
+        }
+
+        if (isNaN(projectData.lat) || isNaN(projectData.lon)) {
+            formError.textContent = 'Por favor selecciona una ciudad del buscador para obtener las coordenadas';
+            formError.style.display = 'block';
+            return;
+        }
+
+        // Deshabilitar botón
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creando...';
+
+        try {
+            // Crear el proyecto
+            await jsonService.createProject(projectData);
+
+            // Mostrar éxito
+            formSuccess.textContent = '✓ Proyecto creado exitosamente. Redirigiendo...';
+            formSuccess.style.display = 'block';
+
+            // Resetear formulario
+            form.reset();
+
+            // Redirigir
+            setTimeout(() => {
+                router.navigate('/');
+            }, 2000);
+
+        } catch (error) {
+            console.error('Error creando proyecto:', error);
+            formError.textContent = error.message || 'Error al crear el proyecto';
+            formError.style.display = 'block';
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Crear Proyecto';
+        }
+    });
+}
+

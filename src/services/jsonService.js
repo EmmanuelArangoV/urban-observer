@@ -46,6 +46,57 @@ class JsonService {
         }
     }
 
+    /**
+     * Crea un nuevo proyecto (POST)
+     * @param {Object} project - Datos del nuevo proyecto
+     * @returns {Promise<Object>} Proyecto creado
+     */
+    async createProject(project) {
+        try{
+            const response = await fetch(`${API_URLS.PROJECTS}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...project,
+                    favorite: false,
+                    createdAt: new Date().toISOString()
+                }),
+            });
+            if (!response.ok) {
+                throw new Error(`Error HTTP ${response.status}`);
+            }
+            return await response.json();
+        }catch(error) {
+            console.error('Create project', project, ": ", error)
+            throw new Error('Could not connect to the Projects API.');
+        }
+    }
+
+    async updateProject(id, updates) {
+        try{
+            const response = await fetch(`${API_URLS.PROJECTS}/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updates)
+            })
+            if (!response.ok) {
+                throw new Error(`Error HTTP ${response.status}`);
+            }
+            return await response.json();
+        }
+        catch(error) {
+            console.error('Update project', error);
+        }
+    }
+
+    async tongleFavorite(id, isFavorite) {
+        return this.updateProject(id, {favorite: isFavorite});
+    }
+
 }
 
 export default new JsonService();

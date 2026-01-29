@@ -121,20 +121,15 @@ class MeteoService {
             throw new Error('No se pudo obtener el pronóstico del clima');
         }
     }
-        getWindDirection(degrees) {
-            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
-            const index = Math.round(degrees / 45) % 8;
-            return directions[index];
-        }
+    getWindDirection(degrees) {
+        const directions = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
+        const index = Math.round(degrees / 45) % 8;
+        return directions[index];
+    }
 
-
-        getWeatherDescription(code) {
-            return WEATHER_CODES[code] || 'Desconocido';
-        }
-
-
-
-
+    getWeatherDescription(code) {
+        return WEATHER_CODES[code] || 'Desconocido';
+    }
 }
 // Exportar instancia única (Singleton)
 export default new MeteoService();
