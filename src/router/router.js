@@ -2,13 +2,14 @@ import {render} from "../main.js";
 import {registerTemplate} from "../views/register.js";
 import {loginTemplate} from "../views/login.js";
 import {DashboardView} from "../views/dashboard.js"
+import {renderCreateProject} from "../views/create";
 
 const routes = {
     'login': loginTemplate,
     'register': registerTemplate,
     'detail': null,
     'dashboard': DashboardView,
-    'create-project': null,
+    'create': renderCreateProject,
 }
 
 export function router() {

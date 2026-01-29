@@ -1,5 +1,17 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": "ec8c",
+      "name": "Gayathri Sullad",
+      "email": "gayathri.sullad@example.com",
+      "password": "pilot",
+      "role": "user",
+      "city": "Chittoor",
+      "latitude": 5.3504,
+      "longitude": 87.9159,
+      "createdAt": "2026-01-28T23:53:30.599Z"
+    }
+  ],
   "projects": [
     {
       "id": "e755",
