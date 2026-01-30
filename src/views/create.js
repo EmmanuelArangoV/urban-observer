@@ -251,7 +251,7 @@ export function renderCreateProject() {
                     </div>
 
                     <div style="text-align: center; margin-bottom: 3rem;">
-                        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -1px;" class="gradient-text">
+                        <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -1px;" class="gradient-text">
                           Nuevo Proyecto
                         </h1>
                         <p style="color: var(--text-secondary); font-size: 1.1rem;">Configura tu estación de monitoreo</p>

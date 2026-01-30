@@ -1,5 +1,5 @@
 import { Card } from '../components/Card.js';
-import { LoadingView} from "../components/Loading.js";
+import { LoadingView } from "../components/Loading.js";
 import JsonService from "../services/jsonService.js";
 
 export function DashboardView() {
@@ -22,9 +22,9 @@ export function DashboardView() {
                             <select class="select-input">
                                 <option value="">Todos los estados</option>
                             </select>
-                            <button type="button" class="filter-button">
+                            <button type="button" class="filter-button" onclick="window.location.hash='#create'">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                 </svg>
                             </button>
                         </div>
